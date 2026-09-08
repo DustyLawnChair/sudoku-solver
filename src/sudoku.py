@@ -1,4 +1,5 @@
 import time
+import copy
 
 board = [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -53,6 +54,37 @@ def is_valid(board, num, row, col):
 
     return True
 
+def get_candidates(board, row, col):
+    candidates = []
+
+    for num in range(1, 10):
+        if is_valid(board, num, row, col):
+            candidates.append(num)
+
+    return candidates
+
+def find_best_empty(board):
+    best_cell = None
+    best_candidates = None
+
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] == 0:
+                candidates = get_candidates(board, row, col)
+
+                if best_candidates is None or len(candidates) < len(best_candidates):
+                    best_cell = (row, col)
+                    best_candidates = candidates
+
+                    # Can't do better than one candidate
+                    if len(best_candidates) == 1:
+                        break
+
+        if best_candidates is not None and len(best_candidates) == 1:
+            break
+
+    return best_cell, best_candidates
+
 def print_board(board):
     for row in range(9):
         if row == 3 or row == 6:
@@ -92,16 +124,44 @@ def solve(board):
 
     return False
 
+def solve_mrv(board):
+    cell, candidates = find_best_empty(board)
+
+    # No empty cells means the puzzle is solved
+    if cell is None:
+        return True
+
+    row, col = cell
+
+    for num in candidates:
+        stats["attempts"] += 1
+
+        board[row][col] = num
+
+        if solve_mrv(board):
+            return True
+
+        board[row][col] = 0
+        stats["backtracks"] += 1
+
+    return False
+
 
 
 # test code
+# Test MRV solver
+stats["attempts"] = 0
+stats["backtracks"] = 0
+
+mrv_board = copy.deepcopy(board)
+
 start_time = time.perf_counter()
 
-if solve(board):
+if solve_mrv(mrv_board):
     end_time = time.perf_counter()
 
-    print("Solved!")
-    print_board(board)
+    print("MRV Solved!")
+    print_board(mrv_board)
 
     print()
     print(f"Attempts: {stats['attempts']}")
