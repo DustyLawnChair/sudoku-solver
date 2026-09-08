@@ -8,8 +8,11 @@ from src.solver import (
     count_solutions
 )
 
-from src.generator import generate_puzzle
-
+from src.generator import (
+    generate_puzzle,
+    generate_by_difficulty,
+    analyze_difficulty
+)
 
 class TestSudokuSolver(unittest.TestCase):
 
@@ -81,6 +84,35 @@ class TestSudokuSolver(unittest.TestCase):
         )
 
         self.assertEqual(clues, 40)
+
+    def test_easy_puzzle(self):
+        puzzle = generate_by_difficulty("easy")
+
+        clues = sum(
+            1
+            for row in puzzle
+            for value in row
+            if value != 0
+        )
+
+        self.assertEqual(clues, 45)
+
+
+    def test_medium_puzzle(self):
+        puzzle = generate_by_difficulty("medium")
+        stats = analyze_difficulty(puzzle)
+
+        self.assertGreaterEqual(stats["attempts"], 45)
+
+
+    def test_hard_puzzle(self):
+        puzzle = generate_by_difficulty("hard")
+        stats = analyze_difficulty(puzzle)
+
+        self.assertTrue(
+            stats["attempts"] >= 60
+            or stats["backtracks"] >= 5
+        )
 
 
 if __name__ == "__main__":
