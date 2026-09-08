@@ -54,6 +54,63 @@ def is_valid(board, num, row, col):
 
     return True
 
+def is_valid_board(board):
+    for row in range(9):
+        for col in range(9):
+            num = board[row][col]
+
+            # Empty cells are fine
+            if num == 0:
+                continue
+
+            # Temporarily remove the number
+            board[row][col] = 0
+
+            # Check whether that number could legally exist here
+            if not is_valid(board, num, row, col):
+                board[row][col] = num
+                return False
+
+            # Restore the number
+            board[row][col] = num
+
+    return True
+
+def get_puzzle():
+    print("Enter your Sudoku puzzle.")
+    print("Use 0 for empty cells.")
+    print("Enter 9 digits per row.")
+    print()
+
+    puzzle = []
+
+    for row in range(9):
+        while True:
+            try:
+                values = input(f"Row {row + 1}: ").strip()
+
+                # Allow either "530070000" or "5 3 0 0 7 0 0 0 0"
+                values = values.replace(" ", "")
+
+                if len(values) != 9:
+                    print("Please enter exactly 9 digits.")
+                    continue
+
+                if not values.isdigit():
+                    print("Please enter numbers only.")
+                    continue
+
+                values = [int(value) for value in values]
+
+                puzzle.append(values)
+                break
+
+            except ValueError:
+                print("Please enter numbers only.")
+
+    return puzzle
+
+
 def get_candidates(board, row, col):
     candidates = []
 
@@ -148,24 +205,49 @@ def solve_mrv(board):
 
 
 
-# test code
-# Test MRV solver
-stats["attempts"] = 0
-stats["backtracks"] = 0
+board = [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
 
-mrv_board = copy.deepcopy(board)
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
 
-start_time = time.perf_counter()
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+]
 
-if solve_mrv(mrv_board):
-    end_time = time.perf_counter()
+# Create a valid-looking but unsolvable puzzle
+board[0][2] = 4
+board[0][3] = 6
+board[0][5] = 8
 
-    print("MRV Solved!")
-    print_board(mrv_board)
-
-    print()
-    print(f"Attempts: {stats['attempts']}")
-    print(f"Backtracks: {stats['backtracks']}")
-    print(f"Time: {end_time - start_time:.6f} seconds")
+if not is_valid_board(board):
+    print("Invalid Sudoku puzzle.")
 else:
-    print("No solution exists.")
+    stats["attempts"] = 0
+    stats["backtracks"] = 0
+
+    start_time = time.perf_counter()
+
+    if solve_mrv(board):
+        end_time = time.perf_counter()
+
+        print("Solved!")
+        print_board(board)
+
+        print()
+        print(f"Attempts: {stats['attempts']}")
+        print(f"Backtracks: {stats['backtracks']}")
+        print(f"Time: {end_time - start_time:.6f} seconds")
+    else:
+        end_time = time.perf_counter()
+
+        print("This Sudoku puzzle has no solution.")
+
+        print()
+        print(f"Attempts: {stats['attempts']}")
+        print(f"Backtracks: {stats['backtracks']}")
+        print(f"Time: {end_time - start_time:.6f} seconds")
