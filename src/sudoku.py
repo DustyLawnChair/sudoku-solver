@@ -1,7 +1,19 @@
 import time
 
-from solver import solve_mrv, is_valid_board
+from src.solver import solve_mrv, is_valid_board
+from src.generator import generate_by_difficulty
 
+def main_menu():
+    print("=" * 32)
+    print("          SUDOKU SOLVER")
+    print("=" * 32)
+    print()
+    print("1. Solve a puzzle")
+    print("2. Generate a puzzle")
+    print("3. Exit")
+    print()
+
+    return input("Choose an option: ").strip()
 
 def get_puzzle():
     print("Enter your Sudoku puzzle.")
@@ -48,37 +60,75 @@ def print_board(board):
         print()
 
 
-board = get_puzzle()
+choice = main_menu()
 
-print()
+if choice == "1":
+    board = get_puzzle()
 
-if not is_valid_board(board):
-    print("Invalid Sudoku puzzle.")
-else:
-    stats = {
-        "attempts": 0,
-        "backtracks": 0
+    print()
+
+    if not is_valid_board(board):
+        print("Invalid Sudoku puzzle.")
+    else:
+        stats = {
+            "attempts": 0,
+            "backtracks": 0
+        }
+
+        start_time = time.perf_counter()
+
+        if solve_mrv(board, stats):
+            end_time = time.perf_counter()
+
+            print("Solved!")
+            print_board(board)
+            print()
+
+            print(f"Attempts: {stats['attempts']}")
+            print(f"Backtracks: {stats['backtracks']}")
+            print(f"Time: {end_time - start_time:.6f} seconds")
+
+        else:
+            end_time = time.perf_counter()
+
+            print("This Sudoku puzzle has no solution.")
+            print()
+
+            print(f"Attempts: {stats['attempts']}")
+            print(f"Backtracks: {stats['backtracks']}")
+            print(f"Time: {end_time - start_time:.6f} seconds")
+
+elif choice == "2":
+    print()
+    print("Select difficulty:")
+    print("1. Easy")
+    print("2. Medium")
+    print("3. Hard")
+    print()
+
+    difficulty_choice = input("Choose a difficulty: ").strip()
+
+    difficulties = {
+        "1": "easy",
+        "2": "medium",
+        "3": "hard"
     }
 
-    start_time = time.perf_counter()
+    if difficulty_choice not in difficulties:
+        print("\nInvalid difficulty.")
+    else:
+        difficulty = difficulties[difficulty_choice]
 
-    if solve_mrv(board, stats):
-        end_time = time.perf_counter()
+        print()
+        print(f"Generating {difficulty} puzzle...")
+        print()
 
-        print("Solved!")
+        board = generate_by_difficulty(difficulty)
+
         print_board(board)
 
-        print()
-        print(f"Attempts: {stats['attempts']}")
-        print(f"Backtracks: {stats['backtracks']}")
-        print(f"Time: {end_time - start_time:.6f} seconds")
+elif choice == "3":
+    print("\nGoodbye!")
 
-    else:
-        end_time = time.perf_counter()
-
-        print("This Sudoku puzzle has no solution.")
-
-        print()
-        print(f"Attempts: {stats['attempts']}")
-        print(f"Backtracks: {stats['backtracks']}")
-        print(f"Time: {end_time - start_time:.6f} seconds")
+else:
+    print("\nInvalid option.")
