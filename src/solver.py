@@ -134,3 +134,24 @@ def solve_mrv(board, stats=None, randomize=False):
         stats["backtracks"] += 1
 
     return False
+
+def count_solutions(board, limit=2):
+    cell, candidates = find_best_empty(board)
+
+    if cell is None:
+        return 1
+
+    row, col = cell
+    count = 0
+
+    for num in candidates:
+        board[row][col] = num
+
+        count += count_solutions(board, limit)
+
+        board[row][col] = 0
+
+        if count >= limit:
+            return count
+
+    return count

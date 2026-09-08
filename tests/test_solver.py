@@ -4,8 +4,11 @@ import copy
 from src.solver import (
     is_valid,
     is_valid_board,
-    solve_mrv
+    solve_mrv,
+    count_solutions
 )
+
+from src.generator import generate_puzzle
 
 
 class TestSudokuSolver(unittest.TestCase):
@@ -53,6 +56,33 @@ class TestSudokuSolver(unittest.TestCase):
         for row in self.board:
             self.assertNotIn(0, row)
 
+    def test_unique_solution(self):
+        board = copy.deepcopy(self.board)
+
+        solutions = count_solutions(board)
+
+        self.assertEqual(solutions, 1)
+
+    def test_generated_puzzle_has_unique_solution(self):
+        puzzle = generate_puzzle(40)
+
+        solutions = count_solutions(copy.deepcopy(puzzle))
+
+        self.assertEqual(solutions, 1)
+
+    def test_generated_puzzle_has_correct_clue_count(self):
+        puzzle = generate_puzzle(40)
+
+        clues = sum(
+            1
+            for row in puzzle
+            for value in row
+            if value != 0
+        )
+
+        self.assertEqual(clues, 40)
+
 
 if __name__ == "__main__":
     unittest.main()
+
