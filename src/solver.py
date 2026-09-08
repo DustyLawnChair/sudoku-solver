@@ -1,3 +1,6 @@
+import random
+
+
 def find_empty(board):
     for row in range(9):
         for col in range(9):
@@ -58,7 +61,6 @@ def get_candidates(board, row, col):
 
     return candidates
 
-
 def find_best_empty(board):
     best_cell = None
     best_candidates = None
@@ -104,7 +106,13 @@ def solve(board, stats):
     return False
 
 
-def solve_mrv(board, stats):
+def solve_mrv(board, stats=None, randomize=False):
+    if stats is None:
+        stats = {
+            "attempts": 0,
+            "backtracks": 0
+        }
+
     cell, candidates = find_best_empty(board)
 
     if cell is None:
@@ -112,12 +120,14 @@ def solve_mrv(board, stats):
 
     row, col = cell
 
+    if randomize:
+        random.shuffle(candidates)
+
     for num in candidates:
         stats["attempts"] += 1
-
         board[row][col] = num
 
-        if solve_mrv(board, stats):
+        if solve_mrv(board, stats, randomize):
             return True
 
         board[row][col] = 0
